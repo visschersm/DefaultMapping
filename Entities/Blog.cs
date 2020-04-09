@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Entities
+namespace MTech.DefaultMapping.Entities
 {
     public class Blog
     {

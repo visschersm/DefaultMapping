@@ -7,7 +7,7 @@ using MTech.DefaultMapping.ViewModel;
 using MTech.DefaultMapping.DataModel;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper.Extensions;
+using AutoMapper.QueryableExtensions;
 
 namespace MTech.DefaultMapping.Services
 {
@@ -31,16 +31,17 @@ namespace MTech.DefaultMapping.Services
                 .ToArray();
         }
 
+        // Oldschool explicit View
         public IEnumerable<BlogTitleView> GetViews()
         {
             return _repository.AsNoTracking()
                 .Select(x => new BlogTitleView
                 {
-                    
+                    Title = x.Title
                 }).ToArray();
         }
 
-        // With AutoMapper and ProjectTo
+        // Explicit with AutoMapper and ProjectTo
         public IEnumerable<BlogTitleView> Get()
         {
             return _repository.AsNoTracking()
@@ -48,17 +49,20 @@ namespace MTech.DefaultMapping.Services
                 .ToArray();
         }
 
+        // No dependency on ViewModel or entities, Only on AutoMapper
         public IEnumerable<TView> Get<TView>()
         {
             return _repository.AsNoTracking()
-                .ProjectTo<TView>(_mapper.ConfigurationProvider);
+                .ProjectTo<TView>(_mapper.ConfigurationProvider)
+                .ToArray();
         }
 
-        // Dependency on Entities
+        // No dependency on ViewModel, only on Entities
         public IEnumerable<TView> Get<TView>(Expression<Func<Blog, TView>> selectExpression)
         {
             return _repository.AsNoTracking()
-                .Select(selectExpression).ToArray();
+                .Select(selectExpression)
+                .ToArray();
         }
     }
 }

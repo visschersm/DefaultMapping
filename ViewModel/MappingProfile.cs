@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MTech.DefaultMapping.ViewModel
 {
@@ -12,26 +9,29 @@ namespace MTech.DefaultMapping.ViewModel
     {
         public MappingProfile()
         {
-            ApplyMappingsFromAssembly(Assembly.GetExecutingAssembly());
+            ApplyMappingsFromAssembly(AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic).ToArray());
         }
 
-        private void ApplyMappingsFromAssembly(Assembly assembly)
+        private void ApplyMappingsFromAssembly(Assembly[] assemblies)
         {
-            var types = assembly.GetExportedTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType
-                && (i.GetGenericTypeDefinition() == typeof(IMappingOf<>)
-                    || i.GetGenericTypeDefinition() == typeof(IReverseMappingOf<>))))
-                .ToList();
-
-            foreach (var type in types)
+            foreach (var assembly in assemblies)
             {
-                var instance = Activator.CreateInstance(type);
+                var types = assembly.GetExportedTypes()
+                    .Where(t => t.GetInterfaces().Any(i => i.IsGenericType
+                    && (i.GetGenericTypeDefinition() == typeof(IMappingOf<>)
+                        || i.GetGenericTypeDefinition() == typeof(IReverseMappingOf<>))))
+                    .ToList();
 
-                var methodInfo = type.GetInterface(typeof(IMappingOf<>).Name).GetMethod("Mapping");
-                methodInfo?.Invoke(instance, new object[] { this });
+                foreach (var type in types)
+                {
+                    var instance = Activator.CreateInstance(type);
 
-                var reverseMapping = type.GetInterface(typeof(IReverseMappingOf<>).Name).GetMethod("Mapping");
-                reverseMapping?.Invoke(instance, new object[] { this });
+                    var methodInfo = type.GetInterface(typeof(IMappingOf<>).Name)?.GetMethod("Mapping");
+                    methodInfo?.Invoke(instance, new object[] { this });
+
+                    var reverseMapping = type.GetInterface(typeof(IReverseMappingOf<>).Name)?.GetMethod("Mapping");
+                    reverseMapping?.Invoke(instance, new object[] { this });
+                }
             }
         }
     }

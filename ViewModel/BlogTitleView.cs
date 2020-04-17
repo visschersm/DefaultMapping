@@ -4,6 +4,6 @@ namespace MTech.DefaultMapping.ViewModel
 {
     public class BlogTitleView : IMappingOf<Blog>, IReverseMappingOf<Blog>
     {
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
     }
 }

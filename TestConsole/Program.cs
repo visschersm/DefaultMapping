@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DataModel.Implementation;
+using Microsoft.Extensions.Logging.Abstractions;
 using MTech.DefaultMapping.Entities;
 using MTech.DefaultMapping.Services;
 using MTech.DefaultMapping.ViewModel;
@@ -15,7 +16,7 @@ namespace MTech.DefaultMapping.TestConsole
         {
             using var context = new BlogContext();
 
-            var config = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>(), null);
+            var config = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>(), NullLoggerFactory.Instance);
             var mapper = config.CreateMapper();
 
             var blogService = new BlogService(context, mapper);

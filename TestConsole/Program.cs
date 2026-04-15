@@ -1,4 +1,5 @@
-﻿using DataModel.Implementation;
+﻿using AutoMapper;
+using DataModel.Implementation;
 using MTech.DefaultMapping.Entities;
 using MTech.DefaultMapping.Services;
 using MTech.DefaultMapping.ViewModel;
@@ -13,7 +14,11 @@ namespace MTech.DefaultMapping.TestConsole
         static void Main()
         {
             using var context = new BlogContext();
-            var blogService = new BlogService(context);
+
+            var config = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>(), null);
+            var mapper = config.CreateMapper();
+
+            var blogService = new BlogService(context, mapper);
 
             // Setup some test data
             context.Blogs.AddRange(new Blog[]
@@ -39,21 +44,14 @@ namespace MTech.DefaultMapping.TestConsole
 
             LogBlogs("Old school mapping with view", entityViewResult);
 
-            // Old school mapping with generic projection
+            // old school mapping with automapper
             var toBeMappedEntityResult = blogService.GetEntities();
-            var oldSchoolMappedResult = toBeMappedEntityResult
-                .Select(x => new BlogTitleView
-                {
-                    Title = x.Title
-                }).ToArray();
+            var oldSchoolMappedResult = mapper.Map<BlogTitleView[]>(toBeMappedEntityResult);
 
-            LogBlogs("Old school mapping with generic projection", oldSchoolMappedResult);
+            LogBlogs("Old school mapping with automapper", oldSchoolMappedResult);
 
             // New style Generic
-            var genericMappedResult = blogService.Get(x => new BlogTitleView
-            {
-                Title = x.Title
-            });
+            var genericMappedResult = blogService.Get<BlogTitleView>();
             LogBlogs("New style mapping, generic", genericMappedResult);
 
             // New style explicit

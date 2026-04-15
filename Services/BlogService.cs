@@ -5,7 +5,9 @@ using System;
 using MTech.DefaultMapping.Entities;
 using MTech.DefaultMapping.ViewModel;
 using MTech.DefaultMapping.DataModel;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper.QueryableExtensions;
 
 namespace MTech.DefaultMapping.Services
 {
@@ -13,11 +15,13 @@ namespace MTech.DefaultMapping.Services
     {
         private readonly IBlogContext _context;
         private readonly DbSet<Blog> _repository;
+        private readonly IMapper _mapper;
 
-        public BlogService(IBlogContext context)
+        public BlogService(IBlogContext context, IMapper mapper)
         {
             _context = context;
             _repository = _context.Set<Blog>();
+            _mapper = mapper;
         }
 
         // For this we have a dependency on Entities
@@ -37,46 +41,19 @@ namespace MTech.DefaultMapping.Services
                 }).ToArray();
         }
 
-        // Explicit typed projection
+        // Explicit with AutoMapper and ProjectTo
         public IEnumerable<BlogTitleView> Get()
         {
-            return GetViews();
+            return _repository.AsNoTracking()
+                .ProjectTo<BlogTitleView>(_mapper.ConfigurationProvider)
+                .ToArray();
         }
 
-        // Generic entrypoint maps properties with matching names/types
+        // No dependency on ViewModel or entities, Only on AutoMapper
         public IEnumerable<TView> Get<TView>()
         {
-            var sourceProperties = typeof(Blog).GetProperties()
-                .Where(x => x.CanRead)
-                .ToDictionary(x => x.Name, x => x);
-
-            var destinationProperties = typeof(TView).GetProperties()
-                .Where(x => x.CanWrite)
-                .ToArray();
-
             return _repository.AsNoTracking()
-                .AsEnumerable()
-                .Select(x =>
-                {
-                    var view = Activator.CreateInstance<TView>();
-
-                    foreach (var destinationProperty in destinationProperties)
-                    {
-                        if (!sourceProperties.TryGetValue(destinationProperty.Name, out var sourceProperty))
-                        {
-                            continue;
-                        }
-
-                        if (destinationProperty.PropertyType != sourceProperty.PropertyType)
-                        {
-                            continue;
-                        }
-
-                        destinationProperty.SetValue(view, sourceProperty.GetValue(x));
-                    }
-
-                    return view;
-                })
+                .ProjectTo<TView>(_mapper.ConfigurationProvider)
                 .ToArray();
         }
 

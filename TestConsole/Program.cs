@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DataModel.Implementation;
+using Microsoft.Extensions.Logging.Abstractions;
 using MTech.DefaultMapping.Entities;
 using MTech.DefaultMapping.Services;
 using MTech.DefaultMapping.ViewModel;
@@ -15,7 +16,7 @@ namespace MTech.DefaultMapping.TestConsole
         {
             using var context = new BlogContext();
 
-            var config = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>());
+            var config = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>(), NullLoggerFactory.Instance);
             var mapper = config.CreateMapper();
 
             var blogService = new BlogService(context, mapper);
@@ -44,11 +45,11 @@ namespace MTech.DefaultMapping.TestConsole
 
             LogBlogs("Old school mapping with view", entityViewResult);
 
-            // old school mapping with automapper
+            // Old school mapping with AutoMapper
             var toBeMappedEntityResult = blogService.GetEntities();
             var oldSchoolMappedResult = mapper.Map<BlogTitleView[]>(toBeMappedEntityResult);
 
-            LogBlogs("Old school mapping with automapper", oldSchoolMappedResult);
+            LogBlogs("Old school mapping with AutoMapper", oldSchoolMappedResult);
 
             // New style Generic
             var genericMappedResult = blogService.Get<BlogTitleView>();

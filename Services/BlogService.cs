@@ -43,7 +43,7 @@ namespace MTech.DefaultMapping.Services
             return GetViews();
         }
 
-        // Generic entrypoint requires explicit projection
+        // Generic entrypoint maps properties with matching names/types
         public IEnumerable<TView> Get<TView>()
         {
             var sourceProperties = typeof(Blog).GetProperties()
@@ -55,7 +55,7 @@ namespace MTech.DefaultMapping.Services
                 .ToArray();
 
             return _repository.AsNoTracking()
-                .ToArray()
+                .AsEnumerable()
                 .Select(x =>
                 {
                     var view = Activator.CreateInstance<TView>();

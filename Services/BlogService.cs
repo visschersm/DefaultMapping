@@ -5,9 +5,7 @@ using System;
 using MTech.DefaultMapping.Entities;
 using MTech.DefaultMapping.ViewModel;
 using MTech.DefaultMapping.DataModel;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper.QueryableExtensions;
 
 namespace MTech.DefaultMapping.Services
 {
@@ -15,13 +13,11 @@ namespace MTech.DefaultMapping.Services
     {
         private readonly IBlogContext _context;
         private readonly DbSet<Blog> _repository;
-        private readonly IMapper _mapper;
 
-        public BlogService(IBlogContext context, IMapper mapper)
+        public BlogService(IBlogContext context)
         {
             _context = context;
             _repository = _context.Set<Blog>();
-            _mapper = mapper;
         }
 
         // For this we have a dependency on Entities
@@ -44,17 +40,22 @@ namespace MTech.DefaultMapping.Services
         // Explicit with AutoMapper and ProjectTo
         public IEnumerable<BlogTitleView> Get()
         {
-            return _repository.AsNoTracking()
-                .ProjectTo<BlogTitleView>(_mapper.ConfigurationProvider)
-                .ToArray();
+            return GetViews();
         }
 
-        // No dependency on ViewModel or entities, Only on AutoMapper
+        // No dependency on ViewModel or entities
         public IEnumerable<TView> Get<TView>()
         {
-            return _repository.AsNoTracking()
-                .ProjectTo<TView>(_mapper.ConfigurationProvider)
-                .ToArray();
+            if (typeof(TView) == typeof(BlogTitleView))
+            {
+                return _repository.AsNoTracking()
+                    .Select(x => (TView)(object)new BlogTitleView
+                    {
+                        Title = x.Title
+                    }).ToArray();
+            }
+
+            throw new NotSupportedException($"Mapping for view type {typeof(TView).Name} is not supported.");
         }
 
         // No dependency on ViewModel, only on Entities

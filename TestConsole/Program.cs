@@ -45,11 +45,11 @@ namespace MTech.DefaultMapping.TestConsole
 
             LogBlogs("Old school mapping with view", entityViewResult);
 
-            // old school mapping with automapper
+            // Old school mapping with AutoMapper
             var toBeMappedEntityResult = blogService.GetEntities();
             var oldSchoolMappedResult = mapper.Map<BlogTitleView[]>(toBeMappedEntityResult);
 
-            LogBlogs("Old school mapping with automapper", oldSchoolMappedResult);
+            LogBlogs("Old school mapping with AutoMapper", oldSchoolMappedResult);
 
             // New style Generic
             var genericMappedResult = blogService.Get<BlogTitleView>();

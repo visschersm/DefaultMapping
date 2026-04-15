@@ -39,7 +39,7 @@ namespace MTech.DefaultMapping.TestConsole
 
             LogBlogs("Old school mapping with view", entityViewResult);
 
-            // old school mapping with generic projection
+            // Old school mapping with generic projection
             var toBeMappedEntityResult = blogService.GetEntities();
             var oldSchoolMappedResult = toBeMappedEntityResult
                 .Select(x => new BlogTitleView
@@ -50,7 +50,10 @@ namespace MTech.DefaultMapping.TestConsole
             LogBlogs("Old school mapping with generic projection", oldSchoolMappedResult);
 
             // New style Generic
-            var genericMappedResult = blogService.Get<BlogTitleView>();
+            var genericMappedResult = blogService.Get(x => new BlogTitleView
+            {
+                Title = x.Title
+            });
             LogBlogs("New style mapping, generic", genericMappedResult);
 
             // New style explicit

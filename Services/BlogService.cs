@@ -37,25 +37,16 @@ namespace MTech.DefaultMapping.Services
                 }).ToArray();
         }
 
-        // Explicit with AutoMapper and ProjectTo
+        // Explicit typed projection
         public IEnumerable<BlogTitleView> Get()
         {
             return GetViews();
         }
 
-        // No dependency on ViewModel or entities
+        // Generic entrypoint requires explicit projection
         public IEnumerable<TView> Get<TView>()
         {
-            if (typeof(TView) == typeof(BlogTitleView))
-            {
-                return _repository.AsNoTracking()
-                    .Select(x => (TView)(object)new BlogTitleView
-                    {
-                        Title = x.Title
-                    }).ToArray();
-            }
-
-            throw new NotSupportedException($"Mapping for view type {typeof(TView).Name} is not supported.");
+            throw new NotSupportedException($"Call {nameof(Get)} with a select expression for {typeof(TView).Name}.");
         }
 
         // No dependency on ViewModel, only on Entities

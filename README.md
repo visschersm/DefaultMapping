@@ -1,18 +1,18 @@
 # DefaultMapping
 
-Dit project demonstreert verschillende manieren om `Blog`-entiteiten naar `BlogTitleView` te mappen in een .NET 5/EF Core + AutoMapper setup.
+This project demonstrates different ways to map `Blog` entities to `BlogTitleView` in a .NET 5 / EF Core + AutoMapper setup.
 
-## Welke mappings worden gedemonstreerd?
+## Which mapping styles are demonstrated?
 
-- **Handmatig (old school):** entiteiten ophalen en daarna zelf projecteren naar een viewmodel.
-- **Handmatige projectie in query:** direct `.Select(...)` gebruiken om `BlogTitleView` op te bouwen.
-- **AutoMapper na ophalen:** eerst entiteiten laden en daarna `mapper.Map<BlogTitleView[]>` uitvoeren.
-- **AutoMapper `ProjectTo` (expliciet):** `Get()` projecteert expliciet naar `BlogTitleView`.
-- **AutoMapper `ProjectTo` (generiek):** `Get<TView>()` projecteert generiek naar elk viewmodel.
-- **Select-expressie (generiek):** `Get<TView>(Expression<Func<Blog, TView>>)` met een expliciete select-expressie.
+- **Manual (old school):** retrieve entities first, then manually project to a view model.
+- **Manual projection in query:** use `.Select(...)` directly to construct `BlogTitleView`.
+- **AutoMapper after retrieval:** load entities first and then run `mapper.Map<BlogTitleView[]>`.
+- **AutoMapper `ProjectTo` (explicit):** `Get()` projects explicitly to `BlogTitleView`.
+- **AutoMapper `ProjectTo` (generic):** `Get<TView>()` projects generically to any view model.
+- **Select expression (generic):** `Get<TView>(Expression<Func<Blog, TView>>)` with an explicit select expression.
 
-Daarnaast laat het project een **conventie-gebaseerde mappingregistratie** zien via:
+In addition, the project shows **convention-based mapping registration** through:
 
-- `IMappingOf<TEntity>` voor een enkelvoudige mapping (`CreateMap`)
-- `IReverseMappingOf<TEntity>` voor bidirectionele mapping (`CreateMap(...).ReverseMap()`)
-- `MappingProfile` dat deze mappings automatisch uit assemblies ophaalt en registreert.
+- `IMappingOf<TEntity>` for one-way mapping (`CreateMap`)
+- `IReverseMappingOf<TEntity>` for bidirectional mapping (`CreateMap(...).ReverseMap()`)
+- `MappingProfile` that automatically discovers and registers these mappings from loaded assemblies.

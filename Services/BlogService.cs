@@ -46,7 +46,38 @@ namespace MTech.DefaultMapping.Services
         // Generic entrypoint requires explicit projection
         public IEnumerable<TView> Get<TView>()
         {
-            throw new NotSupportedException($"Call {nameof(Get)} with a select expression for {typeof(TView).Name}.");
+            var sourceProperties = typeof(Blog).GetProperties()
+                .Where(x => x.CanRead)
+                .ToDictionary(x => x.Name, x => x);
+
+            var destinationProperties = typeof(TView).GetProperties()
+                .Where(x => x.CanWrite)
+                .ToArray();
+
+            return _repository.AsNoTracking()
+                .ToArray()
+                .Select(x =>
+                {
+                    var view = Activator.CreateInstance<TView>();
+
+                    foreach (var destinationProperty in destinationProperties)
+                    {
+                        if (!sourceProperties.TryGetValue(destinationProperty.Name, out var sourceProperty))
+                        {
+                            continue;
+                        }
+
+                        if (destinationProperty.PropertyType != sourceProperty.PropertyType)
+                        {
+                            continue;
+                        }
+
+                        destinationProperty.SetValue(view, sourceProperty.GetValue(x));
+                    }
+
+                    return view;
+                })
+                .ToArray();
         }
 
         // No dependency on ViewModel, only on Entities
